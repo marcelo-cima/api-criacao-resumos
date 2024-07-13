@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.editorconfig
+.env
+test-report.html
+resultados/
+req.http
+data/
