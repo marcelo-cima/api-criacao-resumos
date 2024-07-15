@@ -4,8 +4,8 @@
 
 1. Faça o fork deste repositório
 2. Clone o repositório forkado
-3. Edite o final deste README colocando o seu nome no local indicado (não é necessário clonar o repositório. Você pode fazer esse passo pelo próprio GitHub)
-4. Abra um pull request colocando o seu nome e sobrenome no título do pull request
+3. Edite o final deste README colocando o nome da dupla no local indicado (não é necessário clonar o repositório. Você pode fazer esse passo pelo próprio GitHub)
+4. Abra um pull request colocando o nome da dupla e sobrenome no título do pull request
 5. Copie o link do seu pull request (PR) e cole-o na Plataforma do Aluno no local indicado para a entrega (o link do pull request termina com "/pull/`NUMERO_DO_PULL_REQUEST`")
 
 #### ⚠️ Importante: o passo a passo acima visa priorizar a entrega do desafio logo nos primeiros minutos. Se desejar, pode deixar para fazer o pull request (PR) e a entrega do link na plataforma após o término do projeto
