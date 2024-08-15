@@ -1,0 +1,11 @@
+[
+    {
+        "id": "1",
+        "usuarioId": "1",
+        "materiaId": "1",
+        "titulo": "Operadores de Comparação",
+        "topicos": ["JavaScript", "Lógica de Programação"],
+        "descricao": "Os operadores de comparação são ferramentas cruciais em programação, permitindo-nos comparar valores e tomar decisões com base nessas comparações. Vamos dar uma olhada nos principais operadores.",
+        "criado": "15/08/2024"
+    }
+]
