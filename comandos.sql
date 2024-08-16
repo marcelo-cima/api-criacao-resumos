@@ -8,12 +8,10 @@ email text not null unique,
 senha text not null
 );
 
-
 create table materias (
 id serial primary key,
   nome text not null
 );
-
 
 create table resumos (
 id serial primary key,
