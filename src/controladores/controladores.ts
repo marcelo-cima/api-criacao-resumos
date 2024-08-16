@@ -1,31 +1,108 @@
-import TResumo from "../tipos/TResumo"
+import { Request, Response } from "express";
+import { adicionarResumo, exibirResumos, gerarDescricao } from "../utilitarios/utilitarios";
+import { Resumo } from "../modelos/Resumo";
 
-class Resumo{
-    id?: number
-    usuarioId: number
-    materiaId: number
-    titulo: string
-    topicos: string | string[]
-    descricao: string
-    criado?: string
 
-    constructor(resumo: TResumo){
-        this.id = resumo.id
-        this.usuarioId = resumo.usuarioId
-        this.materiaId = resumo.materiaId
-        this.titulo = resumo.titulo
-        this.topicos = resumo.topicos
-        this.descricao = resumo.descricao
-        this.criado = resumo.criado
+/* Criar um resumo */
+export class criarResumo {
+    async controlador(req: Request, res: Response){
+        const { materiaId, titulo, topicos } = req.body
+        
+        
+        if(!materiaId || !topicos) {
+            return res.status(400).json({
+                mensagem: 'Todos os campos são obrigatórios'
+            })
+        }
+        
+        const bancodedados = await exibirResumos()
+        const materiaParecida = bancodedados.find ( materias => {
+            return materias.materiaId === materiaId
+        })
+        if(!materiaParecida) {
+            return res.status(400).json({
+                mensagem: 'Matéria não encontrada'
+            })
+        }
+
+        if(!titulo){
+            const novoResumo = new Resumo({
+                id: 1,
+                usuarioId: 2,
+                materiaId: materiaId,
+                titulo: "Sem título",
+                topicos: topicos,
+                descricao: gerarDescricao("insira descricao longa aqui"),
+                criado: "hoje"
+            })
+            await adicionarResumo(novoResumo)
+            return res.status(201).json(novoResumo)
+        } else {
+            const novoResumo = new Resumo({
+                id: 1,
+                usuarioId: 2,
+                materiaId: materiaId,
+                titulo: titulo,
+                topicos: topicos,
+                descricao: gerarDescricao("insira descricao longa aqui"),
+                criado: "hoje"
+            })
+            await adicionarResumo(novoResumo)
+            return res.status(201).json(novoResumo)
+        }
     }
 }
 
-const novoResumo = new Resumo({
-    usuarioId: 2,
-    materiaId: 3,
-    titulo: 'oi',
-    topicos: 'ola',
-    descricao: 'string',
-})
+/* Listar resumos */
+/* export class listarResumos {
+    async controlador(req: Request, res: Response){
+        const { materia } = req.query
 
-console.log(novoResumo)
+        const bancodedados = await exibirResumos()
+
+        bancodedados.find( subject => {
+            return subject.materia === materia
+        })
+        
+        return await exibirResumos()
+    }
+} */
+
+/* Editar um resumo */
+export class editarResumo {
+    async controlador(req: Request, res: Response){
+        const { id } = req.params
+        const { materiaId, titulo} = req.body
+
+        if(!id || !materiaId || !titulo) {
+            return res.status(400).json({
+                mensagem: 'Todos os campos são obrigatórios'
+            })
+        }
+
+        const bancodedados = await exibirResumos()
+        const idParecido = bancodedados.find ( resumos => {
+            return resumos.id === Number(id)
+        })
+        if(!idParecido) {
+            return res.status(404).json({
+                mensagem: 'Resumo não encontrado'
+            })
+        }
+
+        /* const materiaIdParecida = bancodedados.find ( resumos => {
+            return resumos.materiaId === materiaId
+        })
+        if(!materiaIdParecida){
+            return res.status(404).json({
+                mensagem: 'Matéria não encontrada'
+            })
+        } */
+
+        idParecido.titulo = titulo
+        idParecido.materiaId = materiaId
+
+        return res.status(200).json(idParecido)
+
+    }
+}
