@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { adicionarResumo, exibirResumos, gerarDescricao } from "../utilitarios/utilitarios";
 import { Resumo } from "../modelos/Resumo";
+import pool from "../conexaoBd";
 
 
 /* Criar um resumo */
@@ -54,19 +55,22 @@ export class criarResumo {
 }
 
 /* Listar resumos */
-/* export class listarResumos {
+export class listarResumos {
     async controlador(req: Request, res: Response){
         const { materia } = req.query
-
-        const bancodedados = await exibirResumos()
-
-        bancodedados.find( subject => {
-            return subject.materia === materia
-        })
         
-        return await exibirResumos()
+        try {
+            const { rows } = await pool.query(`
+                select * from resumos;
+            `)
+            return res.json(rows)
+
+        } catch (error) {
+            console.log((error as Error).message)
+            return res.status(500).json({ mensagem: 'Erro interno' })
+        }
     }
-} */
+} 
 
 /* Editar um resumo */
 export class editarResumo {
