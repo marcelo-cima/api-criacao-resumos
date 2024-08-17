@@ -30,8 +30,8 @@ export class criarUmaConta{
             )
     
             const {rows: usuarioCriado} = await pool.query(`
-                select id, nome, email from usuarios where nome = $1
-                `, [nome]
+                select id, nome, email from usuarios where email = $1
+                `, [email]
             )
     
             return res.status(201).json(usuarioCriado[0])
@@ -57,12 +57,12 @@ export class fazerLogin {
             select * from usuarios where email = $1 limit 1;
         `, [email])
         if(usuariosCadastrados.length === 0){
-            return res.status(404).json({ mensagem: 'E-mail ou senha inválidos' })
+            return res.status(400).json({ mensagem: 'E-mail ou senha inválidos' })
         }
 
         /* Confere senha */
         const usuarioCadastrado = usuariosCadastrados[0]
-        const senhaConferida = validarSenha(email, senha)
+        const senhaConferida = await validarSenha(email, senha)
         if(!senhaConferida){
             return res.status(400).json({ mensagem: 'E-mail ou senha inválidos' })
         }
@@ -72,9 +72,8 @@ export class fazerLogin {
         if (!token){
             return res.status(401).json({ mensagem: "Falha na autenticação"})
         }
-        return res.json({ token })
-
-        /* Comprovante de login */
+        
+        return res.status(200).json({token: token})
 
         } catch (error) {
             console.log((error as Error).message)

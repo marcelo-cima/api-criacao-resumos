@@ -26,8 +26,8 @@ export function gerarDescricao(descricao: string): string {
 
 export async function validarSenha (email: string, senhaDigitada: string): Promise<boolean> {
        
-    const { rows: senhaCriptografada} = await pool.query(`
-        select senha from usuarios email = $1
+    const { rows: senhaCriptografada } = await pool.query(`
+        select senha from usuarios where email = $1
         `, [email]
     )
     
@@ -40,7 +40,7 @@ export class Token{
         try {
             const token = jwt.sign(
             conteudo, 
-            process.env.SENHA_JWT || "", 
+            process.env.SENHA_JWT as string, 
             { expiresIn: "1h" })
     
             return token
