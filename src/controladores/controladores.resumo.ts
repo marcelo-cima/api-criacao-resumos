@@ -23,10 +23,7 @@ export class ControladorResumo {
             return res.status(404).json({ mensagem: "Matéria não encontrada"})
         }
 
-        /* Adiciona Sem Título */
-        if(!titulo){
-            let titulo = "Sem título"
-        }
+        const novoTitulo = titulo || "Sem título"
 
         /* Adiciona descrição */
         const descricao: string = gerarDescricao("Uma descrição interessante")
@@ -38,18 +35,17 @@ export class ControladorResumo {
         const authorization = bearerAuthorization.substring(7)
         const usuarioId = await new Token().extrair(authorization)
 
-        /* Cria resumo */
-        const { rows } = await pool.query(`
-            insert into resumos(topicos, descricao, materia_id, usuario_id) values ($1, $2, $3, $4)
-            `, [topicos, descricao, materiaId, usuarioId]
+        /* Sucesso */
+        const {rows: resumo } = await pool.query(`
+            insert into resumos(titulo, topicos, descricao, materia_id, usuario_id) 
+            values ($1, $2, $3, $4, $5)
+            returning id,
+            usuario_id as "usuarioId",
+            materia_id as "materiaId",
+            titulo, topicos, descricao, criado;
+            `, [novoTitulo, topicos, descricao, materiaId, usuarioId]
         )
-
-        /* Retorna resumo */
-        const { rows: resumo } = await pool.query(`
-            select * from resumos where topicos = $1 and descricao = $2 and materia_id = $3
-            `, [topicos, descricao, materiaId]
-        )
-        return res.status(201).json(resumo)
+        return res.status(201).json(resumo[0])
 
         } catch (error) {
             console.log((error as Error).message)
@@ -69,26 +65,40 @@ export class ControladorResumo {
         const authorization = bearerAuthorization.substring(7)
         const id = await new Token().extrair(authorization)
         
+        /* Resumo sem materia */
         if(!materia){
             const { rows: resultadoSemMateria } = await pool.query(`
-                select * from resumos where usuario_id = $1
+                select resumos.id,
+                usuario_id as "usuarioId",
+                nome as "materia",
+                titulo, topicos, descricao, criado 
+                from resumos
+                inner join materias on resumos.materia_id = materias.id
+                where usuario_id = $1
                 `, [id]
             )
             return res.json(resultadoSemMateria)
         }
 
         /* Procurar matérias */
-        const { rows: rowMateriaId } = await pool.query(`
-            select id from materias where nome = $1
+        const { rows: nomeMateria } = await pool.query(`
+            select * from materias where nome = $1
             `, [materia]
         )
-        const materiaId = (rowMateriaId[0].id)
+        const materiaId = (nomeMateria[0].id)
 
         /* Sucesso */
         const { rows: resumosUsuario } = await pool.query(`
-            select * from resumos where usuario_id = $1 and materia_id = $2
+            select resumos.id,
+            usuario_id as "usuarioId",
+            nome as "materia",
+            titulo, topicos, descricao, criado 
+            from resumos
+            inner join materias on resumos.materia_id = materias.id 
+            where usuario_id = $1 and materia_id = $2
             `, [id, materiaId]
         )
+        
         return res.json(resumosUsuario)
 
        } catch (error) {
@@ -105,52 +115,50 @@ export class ControladorResumo {
 
         try {
             /* Campo não enviado */
-        if(!id || !materia_id || !titulo){
-            return res.status(400).json({ mensagem: "Todos os campos são obrigatórios"})
-        }
+            if(!id || !materia_id || !titulo){
+                return res.status(400).json({ mensagem: "Todos os campos são obrigatórios"})
+            }
 
-        /* Buscar materia */
-        const { rows: materia } = await pool.query(`
-            select nome from materias where id = $1
-            `, [materia_id]
-        )
+            /* Buscar materia */
+            const { rows: materia } = await pool.query(`
+                select nome from materias where id = $1
+                `, [materia_id]
+            )
 
-        /* Matéria não encontrada */
-        if(materia.length === 0) {
-            return res.status(404).json({ mensagem: "Matéria não encontrada"})
-        }
+            /* Matéria não encontrada */
+            if(materia.length === 0) {
+                return res.status(404).json({ mensagem: "Matéria não encontrada"})
+            }
 
-         /* Recuperar id */
-         if (!bearerAuthorization){
-            return res.status(401).json({ mensagem: "Falha na autenticação"})
-        }
-        const authorization = bearerAuthorization.substring(7)
-        const usuario_id = await new Token().extrair(authorization)
+            /* Recuperar id */
+            if (!bearerAuthorization){
+                return res.status(401).json({ mensagem: "Falha na autenticação"})
+            }
+            const authorization = bearerAuthorization.substring(7)
+            const usuario_id = await new Token().extrair(authorization)
 
-        /* Procurar resumo */
-        const { rows: rowResumoId } = await pool.query(`
-            select * from resumos where id = $1 and usuario_id = $2
-            `, [id, usuario_id]
-        )        
-        
-        /* Não achou resumo */
-        if(rowResumoId.length === 0) {
-            return res.status(404).json({ mensagem: "Resumo não encontrado"})
-        }
+            /* Procurar resumo */
+            const { rows: rowResumoId } = await pool.query(`
+                select * from resumos where id = $1 and usuario_id = $2
+                `, [id, usuario_id]
+            )        
+            
+            /* Não achou resumo */
+            if(rowResumoId.length === 0) {
+                return res.status(404).json({ mensagem: "Resumo não encontrado"})
+            }
 
-       /* Editar resumo */
-        await pool.query(`
-            update resumos set materia_id = $1, titulo = $2 where id = $3
-            `, [materia_id, titulo, id]
-        )
-        
-        /* Retornar resumo */
-        const { rows: rowResumo } = await pool.query(`
-            select * from resumos where id = $1 and usuario_id = $2
-            `, [id]
-        )
-        const resumo = (rowResumo[0].id)
-        return res.json(resumo) 
+              /* Editar resumo */
+            const { rows: resumo } = await pool.query(`
+                update resumos set materia_id = $1, titulo = $2 where id = $3 
+                returning id,
+                usuario_id as "usuarioId",
+                materia_id as "materiaId",
+                titulo, topicos, descricao, criado
+                `, [materia_id, titulo, id]
+            )
+            return res.json(resumo)
+
         } catch (error) {
             console.log((error as Error).message)
             return res.status(500).json({ mensagem: 'Erro interno' })
@@ -192,6 +200,8 @@ export class ControladorResumo {
         )
 
         return res.status(204).send()
+
+
         } catch (error) {
             console.log((error as Error).message)
             return res.status(500).json({ mensagem: 'Erro interno' }) 
