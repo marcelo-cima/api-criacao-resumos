@@ -9,32 +9,38 @@ export class criarUmaConta{
         const { nome, email, senha } = req.body
 
         try {
+            /* Campo não enviado */
             if (!nome || !email || !senha){
                 return res.status(400).json({ mensagem: 'Todos os campos são obrigatórios'}) 
             }
-    
+            
+            /* Busca se email existe */
             const {rows: emailExistente} = await pool.query(`
                 select email from usuarios where email = $1
                 `, [email]
             )
             
+            /* Email já existe */
             if(emailExistente.length !== 0){
                 return res.status(400).json({ mensagem: 'E-mail já cadastrado'})
             }
-    
+            
+            /* Criptografa a senha */
             const senhaCriptografada: string = await bcrypt.hash(senha, 10)
-    
+            
+            /* Envia dados de cadastro para database */
             await pool.query(`
                 insert into usuarios(nome, email, senha) values($1, $2, $3)
                 `, [nome, email, senhaCriptografada]
             )
     
+            /* Envia informações do usuário criado */
             const {rows: usuarioCriado} = await pool.query(`
                 select id, nome, email from usuarios where email = $1
                 `, [email]
             )
-    
             return res.status(201).json(usuarioCriado[0])
+            
         } catch (error) {
             console.log((error as Error).message)
             return res.status(500).json({ mensagem: 'Erro interno' })   

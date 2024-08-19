@@ -1,6 +1,7 @@
 import { Router } from "express";
-import { criarResumo, editarResumo, listarResumos } from "./controladores/controladores.resumo";
+import { ControladorResumo } from "./controladores/controladores.resumo";
 import { criarUmaConta, fazerLogin, validarToken } from "./controladores/controladores.login";
+import { Materias } from "./controladores/controladores.materias";
 
 export const rotas = Router()
 
@@ -12,12 +13,13 @@ rotas.post('/login', new fazerLogin().controlador)
 
 rotas.use(new validarToken().intermediario)
 
+rotas.get('/materias', new Materias().controlador)
 
-rotas.post("/resumos", new criarResumo().controlador)
+rotas.post("/resumos", new ControladorResumo().criar)
 
-rotas.get('/resumos', new listarResumos().controlador)
+rotas.get('/resumos', new ControladorResumo().listar)
 
-rotas.put('/resumos/:id', new editarResumo().controlador)
+rotas.put('/resumos/:id', new ControladorResumo().editar)
 
-rotas.delete('/resumos/:id', )
+rotas.delete('/resumos/:id', new ControladorResumo().deletar )
 
