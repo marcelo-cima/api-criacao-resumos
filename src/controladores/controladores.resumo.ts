@@ -29,11 +29,10 @@ export class ControladorResumo {
         const descricao: string = gerarDescricao("Uma descrição interessante")
 
         /* Recuperar id */
-        if (!bearerAuthorization){
-            return res.status(401).json({ mensagem: "Falha na autenticação"})
-        }
-        const authorization = bearerAuthorization.substring(7)
-        const usuarioId = await new Token().extrair(authorization)
+        const usuarioId = await new Token().extrair(bearerAuthorization as string)
+
+        /* Tratar array */
+        const novoTopicos = JSON.stringify(topicos)
 
         /* Sucesso */
         const {rows: resumo } = await pool.query(`
@@ -42,8 +41,8 @@ export class ControladorResumo {
             returning id,
             usuario_id as "usuarioId",
             materia_id as "materiaId",
-            titulo, topicos, descricao, criado;
-            `, [novoTitulo, topicos, descricao, materiaId, usuarioId]
+            titulo, topicos::jsonb as topicos, descricao, criado;
+            `, [novoTitulo, novoTopicos, descricao, materiaId, usuarioId]
         )
         return res.status(201).json(resumo[0])
 
@@ -59,11 +58,7 @@ export class ControladorResumo {
 
        try {
         /* Recuperar id */
-        if (!bearerAuthorization){
-            return res.status(401).json({ mensagem: "Falha na autenticação"})
-        }
-        const authorization = bearerAuthorization.substring(7)
-        const id = await new Token().extrair(authorization)
+        const id = await new Token().extrair(bearerAuthorization as string)
         
         /* Resumo sem materia */
         if(!materia){
@@ -71,7 +66,7 @@ export class ControladorResumo {
                 select resumos.id,
                 usuario_id as "usuarioId",
                 nome as "materia",
-                titulo, topicos, descricao, criado 
+                titulo, topicos::jsonb, descricao, criado 
                 from resumos
                 inner join materias on resumos.materia_id = materias.id
                 where usuario_id = $1
@@ -92,13 +87,12 @@ export class ControladorResumo {
             select resumos.id,
             usuario_id as "usuarioId",
             nome as "materia",
-            titulo, topicos, descricao, criado 
+            titulo, topicos::jsonb as topicos, descricao, criado 
             from resumos
             inner join materias on resumos.materia_id = materias.id 
             where usuario_id = $1 and materia_id = $2
             `, [id, materiaId]
         )
-        
         return res.json(resumosUsuario)
 
        } catch (error) {
@@ -131,11 +125,7 @@ export class ControladorResumo {
             }
 
             /* Recuperar id */
-            if (!bearerAuthorization){
-                return res.status(401).json({ mensagem: "Falha na autenticação"})
-            }
-            const authorization = bearerAuthorization.substring(7)
-            const usuario_id = await new Token().extrair(authorization)
+            const usuario_id = await new Token().extrair(bearerAuthorization as string)
 
             /* Procurar resumo */
             const { rows: rowResumoId } = await pool.query(`
@@ -154,10 +144,10 @@ export class ControladorResumo {
                 returning id,
                 usuario_id as "usuarioId",
                 materia_id as "materiaId",
-                titulo, topicos, descricao, criado
+                titulo, topicos::jsonb as topicos, descricao, criado
                 `, [materia_id, titulo, id]
             )
-            return res.json(resumo)
+            return res.json(resumo[0])
 
         } catch (error) {
             console.log((error as Error).message)
@@ -176,11 +166,7 @@ export class ControladorResumo {
         }
 
         /* Recuperar id */
-         if (!bearerAuthorization){
-            return res.status(401).json({ mensagem: "Falha na autenticação"})
-        }
-        const authorization = bearerAuthorization.substring(7)
-        const usuario_id = await new Token().extrair(authorization)
+        const usuario_id = await new Token().extrair(bearerAuthorization as string)
 
         /* Procurar resumo */
         const { rows: rowResumoId } = await pool.query(`

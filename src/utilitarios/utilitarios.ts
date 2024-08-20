@@ -50,13 +50,17 @@ export class Token{
         }
     }
 
-    extrair(authorization: string){
+    extrair(bearerAuthorization: string){
         try {
+
+            /* Tirar Bearer do Authorization */
+            const authorization = bearerAuthorization.substring(7)
+
             const {id} = jwt.verify(
                 authorization, 
                 process.env.SENHA_JWT || ""
             ) as jwt.JwtPayload
-    
+
             return id
         } catch (error) {
             return false

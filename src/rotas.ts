@@ -13,6 +13,7 @@ rotas.post('/login', new fazerLogin().controlador)
 
 rotas.use(new validarToken().intermediario)
 
+
 rotas.get('/materias', new Materias().controlador)
 
 rotas.post("/resumos", new ControladorResumo().criar)

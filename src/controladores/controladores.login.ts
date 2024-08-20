@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import pool from "../conexaoBd";
 import { Token, validarSenha } from "../utilitarios/utilitarios";
 import bcrypt from "bcrypt"
-
+import jwt, { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 
 export class criarUmaConta{
     async controlador(req: Request, res: Response){
@@ -101,28 +101,22 @@ export class validarToken {
                 if (!bearerAuthorization){
                     return res.status(401).json({ mensagem: "Falha na autenticação"})
                 }
-            
-                /* Tirar Bearer do Authorization */
-                const authorization = bearerAuthorization.substring(7)
+                
                 
                 /* Sem id vinculado à authorization */
-                const id = new Token().extrair(authorization)
-                if (!id) { 
-                    return res.status(401).json({ mensagem: "Falha na autenticação"}) 
-                }
-        
-                /* Usuário não encontrado */
-                const { rows: usuario } = await pool.query(`
-                select * from usuarios where id = $1
-                `, [id])
-                if (usuario.length === 0) {
+                const id = new Token().extrair(bearerAuthorization)
+                
+                if(!id){
                     return res.status(401).json({ mensagem: "Falha na autenticação"})
                 }
-        
+                
                 /* Sucesso */
                 next()
                 
             } catch (error) {
+                if(error instanceof TokenExpiredError || error instanceof JsonWebTokenError){
+                    return res.status(401).json({ mensagem: "Falha na autenticação"})
+                }
                 console.log((error as Error).message)
                 return res.status(500).json({ mensagem: 'Erro interno' })
             }
