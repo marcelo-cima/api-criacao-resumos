@@ -75,11 +75,16 @@ export class ControladorResumo {
             return res.json(resultadoSemMateria)
         }
 
-        /* Procurar matérias */
+        /* Procurar materias */
         const { rows: nomeMateria } = await pool.query(`
             select * from materias where nome = $1
             `, [materia]
         )
+        
+        if(nomeMateria.length === 0){
+            return res.json([])
+        }
+
         const materiaId = (nomeMateria[0].id)
 
         /* Sucesso */
