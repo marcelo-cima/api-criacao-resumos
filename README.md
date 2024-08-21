@@ -2,7 +2,7 @@
 
 ## Overview
 
-Este foi o 4º desafio desenvolvido durante minhas aulas na Cubos Academy. Foi requisitado a criação de uma API de criação de resumos, criando usuários e matérias vinculadas também a esses resumos.
+Este foi o 4º desafio desenvolvido durante minhas aulas na Cubos Academy. Foi requisitado a elaboração de uma API de criação de resumos, criando usuários e matérias vinculadas também a esses resumos.
 O desafio foi concluído com a nota máxima e 100% de êxito.
 
 ## Competências treinadas
