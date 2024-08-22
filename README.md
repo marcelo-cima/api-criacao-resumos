@@ -7,20 +7,18 @@ O desafio foi concluído com a nota máxima e 100% de êxito.
 
 ## Competências treinadas
 
-Docker e Docker Compose
-Banco de Dados
-PostgreSQL
-Consultas SQL
-Modelagem de Dados
-CRUD SQL
-Agrupamento e Relacionamento entre Tabelas
-Conexão Node.js com PostgreSQL (paginação)
-Autenticação e Criptografia
-Integração com API de terceiros
-Git e Fluxo de Trabalho em Equipe
-Marca pessoal e Plano de Carreira
-Diversidade e Inclusão em Tecnologia
-Metodologias Ágeis
+- Docker e Docker Compose
+- Banco de Dados
+- PostgreSQL
+- Consultas SQL
+- Modelagem de Dados
+- CRUD SQL
+- Agrupamento e Relacionamento entre Tabelas
+- Conexão Node.js com PostgreSQL (paginação)
+- Autenticação e Criptografia
+- Integração com API de terceiros
+- Git e Fluxo de Trabalho em Equipe
+- Metodologias Ágeis
 
 ## Descrição do desafio
 
